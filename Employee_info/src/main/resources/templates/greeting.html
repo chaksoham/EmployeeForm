@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-classic/resources/theme-classic-all.css" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <script type="text/javascript">
+        // Creation of data model
+        Ext.define('EmployeeDataModel', {
+            extend: 'Ext.data.Model',
+            fields: ['name','Email','Age']
+        });
+
+
+        Ext.onReady(function() {
+            // Store data
+            var myData = [
+                { name : "Asha", Email: "16soham@gmail.com" , Age: "12" },
+                { name : "Vinit", Email : "18soham@gmail.com" ,Age: "12"},
+                { name : "Anand", Email : "20soham@gmail.com" ,Age: "12"},
+                { name : "Niharika", Email : "21soham@gmail.com" ,Age: "12"}
+            ];
+
+            // Creation of first grid store
+            var gridStore = Ext.create('Ext.data.Store', {
+                model: 'EmployeeDataModel',
+                data: myData
+            });
+
+            //Registration Button
+            var button_reg = Ext.create('Ext.Button', {
+                renderTo: Ext.getElementById('ButtonDiv'),
+                text: 'Register',
+                margin: {top:10, left:900, right :0,bottom:10},
+                width: 100,
+                listeners: {
+                    click: function(button) {
+                        var form_ref=Ext.getCmp('newForm');
+                        var name=form_ref.items.items[1].getValue();
+                        var emailId=form_ref.items.items[2].getValue();
+                        var dob =form_ref.items.items[3].getValue();
+                        //var gender=form_ref.items.items[4].items.getValue();
+                        //var mstatus=form_ref.items.items[5].items.getValue();
+                        var country=form_ref.items.items[6].getValue();
+
+                        Ext.MessageBox.alert('Alert box', 'Name entered '+form_ref.items.items[4].items);
+                        //Ajax request will be send
+                        Ext.Ajax.request({
+                            url: '/employee',
+                            method: 'POST',
+                            params: {
+                                name :name,
+                                emailId :emailId,
+                                dob : dob,
+                                country : country
+
+                            },
+                            success: function(response){
+                                Ext.MessageBox.alert('Alert box','Success!!' + response.responseText);
+                            },
+                            failure: function(response){
+                                Ext.MessageBox.alert('Alert box','Failed!!' + response.responseText);
+                            }
+                        })
+                    }
+                }
+
+            });
+
+            // Display button
+            var button_show = Ext.create('Ext.Button', {
+                renderTo: Ext.getElementById('ButtonDivShow'),
+                text: 'Show',
+                margin: {top:10, left:900, right :0,bottom:10},
+                width: 100,
+                listeners: {
+                    click: function(button) {
+                        Ext.MessageBox.alert('Alert box','Display !!');
+                                }
+
+                            }
+                    });
+
+            // Creation of first grid
+            Ext.create('Ext.grid.Panel', {
+                id                : 'gridId',
+                store             : gridStore,
+                stripeRows        : true,
+                title             : 'Employee Details', // Title for the grid
+                renderTo          :'gridDiv', // Div id where the grid has to be rendered
+                width             : 1000,
+                collapsible       : true, // property to collapse grid
+                enableColumnMove  :true, // property which alllows column to move to different position by dragging that column.
+                enableColumnResize:true, // property which allows to resize column run time.
+                margin: 10,
+                columns           :
+                        [{
+                            header: "Employee Name",
+                            dataIndex: 'name',
+                            id : 'name',
+                            flex:  1,       // property defines the amount of space this column is going to take in the grid container with respect to all.
+                            sortable: true, // property to sort grid column data.
+                            hideable: true  // property which allows column to be hidden run time on user request.
+                        },{
+                            header: "Email",
+                            dataIndex: 'Email',
+                            flex: .5,
+                            sortable: true,
+                            hideable: false // this column will not be available to be hidden.
+                        },
+                            {
+                                header: "Age",
+                                dataIndex: 'Age',
+                                flex: .5,
+                                sortable: true,
+                                hideable: false // this column will not be available to be hidden.
+                            }]
+            });
+
+            Ext.create('Ext.form.Panel', {
+                id: 'newForm',
+                title: 'Employee Details',
+                renderTo: 'formId',
+                border: true,
+                width: 1000,
+                margin:10,
+                items: [{
+                    xtype: 'displayfield',
+                    fieldLabel: ''
+                },{
+                    xtype: 'textfield',
+                    id: 'Name',
+                    fieldLabel: 'Name ::',
+                    padding:10
+                },{
+                    xtype: 'textfield',
+                    fieldLabel: 'Email Id:',
+                    padding:10
+                },{
+                    xtype: 'datefield',
+                    fieldLabel: 'Date of Birth',
+                    padding:10
+                },{
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Sex :',
+                    defaultType: 'radiofield',
+                    padding:10,
+                    defaults: {
+                        flex: 1
+                    },
+                    layout: 'vbox',
+                    items: [{
+                        boxLabel: 'Male',
+                        inputValue: 'm',
+                        id: 'radio1'
+                    },{
+                        boxLabel: 'Female',
+                        inputValue: 'f',
+                        id: 'radio2',
+                    }]
+                },{
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Maritial Status :',
+                    defaultType: 'checkboxfield',
+                    padding:10,
+                    layout: 'vbox',
+                    items: [{
+                        boxLabel: 'Married',
+                        inputValue: 'married',
+                        id: 'checkbox1'
+                    },{
+                        boxLabel: 'Single',
+                        inputValue: 'single',
+                        checked: true,
+                        id: 'checkbox2'
+
+                    }]
+                },{
+                    xtype: 'combobox',
+                    fieldLabel: 'Country',
+                    padding:10,
+                    store: Ext.create('Ext.data.Store', {
+                        fields: ['abbr', 'name'],
+                        data: [{
+                            'abbr': 'IND',
+                            'name': 'India'
+                        },{
+                            'abbr': 'USA',
+                            'name': 'United States Of America'
+                        },{
+                            'abbr': 'PAK',
+                            'name': 'Pakistan'
+                        }]
+                    }),
+                    valueField: 'abbr',
+                    displayField: 'name'
+                }]
+
+            });
+        });
+    </script>
+</head>
+<body>
+<div id ="containerDiv">
+    <div id = "formId"></div>
+    <div id="ButtonDiv"></div>
+    <div id="gridDiv"></div>
+    <div id="ButtonDivShow"></div>
+
+</div>
+</body>
+</html>
